@@ -10,9 +10,9 @@ int main()
     int image_height = 2560;
     ofstream ppmFile;
     ppmFile.open("ppm_image.ppm");
-     
-        // Specify format and dimension of image
-        ppmFile
+
+    // Specify format and dimension of image
+    ppmFile
         << "P3\n"
         << image_width << ' ' << image_height << "\n255\n";
     for (int j = 0; j < image_height; ++j)
