@@ -2,10 +2,12 @@
 #include <fstream>
 #include "02_vec3.h"
 #include "03_color.h"
-#include "06_ray.h" 
+#include "06_ray.h"
 #include "05_ppm_file_writer.h"
 
 using namespace std;
+
+color ray_color(const ray &light_ray);
 
 int main()
 {
@@ -28,6 +30,7 @@ int main()
     vec3 pixel_delta_u = unit_vector(viewport_u);
     vec3 pixel_delta_v = unit_vector(viewport_v);
 
+    // Remember, due to the right-handed coordinate system, the viewport in the -Z direction from the camera. 
     point3 viewport_upper_left = camera_center - vec3(0, 0, focal_length) - viewport_v / 2 - viewport_u / 2;
     point3 top_left_pixel = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
@@ -36,23 +39,27 @@ int main()
     write_ppm_header(ppmFile, image_width, image_height);
     for (int i = 0; i < image_height; i++)
     {
-        clog << "\rscanlines remaining: " << (image_height - i-1) << ' ' << flush;
+        clog << "\rscanlines remaining: " << (image_height - i - 1) << ' ' << flush;
         for (int j = 0; j < image_width; j++)
         {
-            point3 pixel_center = top_left_pixel + (j+1)  * pixel_delta_u + (i+1) * pixel_delta_v;
+            point3 pixel_center = top_left_pixel + (j + 1) * pixel_delta_u + (i + 1) * pixel_delta_v;
+            // Vector pointing to the pixel from the camera. 
             vec3 ray_direction = pixel_center - camera_center;
-            color pixel_color = 0.5 * color(ray_direction.x() + 1, ray_direction.y() + 1, ray_direction.z() + 1);
+            // Remember, a ray is defined by its origin and direction vector.
+            ray light_ray = ray(camera_center, ray_direction);
+            color pixel_color = ray_color(light_ray);
             write_color(ppmFile, pixel_color);
         }
     }
     clog << "Done" << endl;
 
- return 0;
+    return 0;
 }
 
 color ray_color(const ray &light_ray)
 {
     vec3 unit_direction = unit_vector(light_ray.direction());
     double t = 0.5 * (unit_direction.y() + 1.0);
+    // Linear blend the colours.
     return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
