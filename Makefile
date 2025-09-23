@@ -1,2 +1,2 @@
 clean:
-	rm -r ./*.ppm
+	rm -r ./*.ppm ; rm -r ./*.out
